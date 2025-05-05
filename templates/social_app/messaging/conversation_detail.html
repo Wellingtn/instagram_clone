@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversation with {{ other_participant.username }} - Social Network{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <a href="{% url 'social_app:user_profile' username=other_participant.username %}" class="text-decoration-none">
+                        <strong>{{ other_participant.username }}</strong>
+                    </a>
+                </div>
+                <div>
+                    <a href="{% url 'social_app:inbox' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Inbox
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body" id="messages-container" style="height: 400px; overflow-y: auto;">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message mb-3 {% if message.sender == request.user %}text-end{% endif %}" data-message-id="{{ message.id }}">
+                        <div class="d-inline-block p-2 rounded {% if message.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}" style="max-width: 75%;">
+                            <div class="message-content">{{ message.content }}</div>
+                            <div class="message-time">
+                                <small class="text-muted {% if message.sender == request.user %}text-white-50{% endif %}">
+                                    {{ message.created_at|date:"M d, Y, g:i a" }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center text-muted">
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="card-footer">
+            <form id="message-form" method="post">
+                {% csrf_token %}
+                <div class="input-group">
+                    <input type="text" name="content" id="message-input" class="form-control" placeholder="Type a message..." required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send"></i> Send
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messagesContainer = document.getElementById('messages-container');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        // Scroll to bottom of messages container
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Initial scroll to bottom
+        scrollToBottom();
+        
+        // Get the last message ID
+        function getLastMessageId() {
+            const messages = document.querySelectorAll('.message');
+            if (messages.length > 0) {
+                return messages[messages.length - 1].dataset.messageId;
+            }
+            return null;
+        }
+        
+        // Add a new message to the UI
+        function addMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message mb-3 ${message.is_sender ? 'text-end' : ''}`;
+            messageDiv.dataset.messageId = message.id;
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = `d-inline-block p-2 rounded ${message.is_sender ? 'bg-primary text-white' : 'bg-light'}`;
+            messageContent.style.maxWidth = '75%';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.textContent = message.content;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            
+            const timeSmall = document.createElement('small');
+            timeSmall.className = `text-muted ${message.is_sender ? 'text-white-50' : ''}`;
+            timeSmall.textContent = message.created_at;
+            
+            timeDiv.appendChild(timeSmall);
+            messageContent.appendChild(contentDiv);
+            messageContent.appendChild(timeDiv);
+            messageDiv.appendChild(messageContent);
+            
+            messagesContainer.appendChild(messageDiv);
+            scrollToBottom();
+        }
+        
+        // Send a message via AJAX
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const content = messageInput.value.trim();
+            if (!content) return;
+            
+            fetch('{% url "social_app:ajax_send_message" %}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                },
+                body: new FormData(messageForm)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Clear input
+                    messageInput.value = '';
+                    
+                    // Add message to UI
+                    addMessage(data.message);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+        
+        // Add conversation_id to the form
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'conversation_id';
+        hiddenInput.value = '{{ conversation.id }}';
+        messageForm.appendChild(hiddenInput);
+        
+        // Poll for new messages
+        function pollNewMessages() {
+            const lastMessageId = getLastMessageId();
+            
+            fetch(`{% url "social_app:ajax_get_messages" conversation_id=conversation.id %}?last_message_id=${lastMessageId || ''}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success' && data.messages.length > 0) {
+                    data.messages.forEach(message => {
+                        addMessage(message);
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        
+        // Poll every 5 seconds
+        setInterval(pollNewMessages, 5000);
+    });
+</script>
+{% endblock %}

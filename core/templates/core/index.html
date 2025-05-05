@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rede Social Django</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .endpoint {
+            background-color: #f4f4f4;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .endpoint h3 {
+            margin-top: 0;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rede Social Django - API de Teste</h1>
+    <p>Esta aplicação implementa um modelo de rede social com base nos predicados Prolog fornecidos.</p>
+    
+    <h2>Endpoints Disponíveis</h2>
+    
+    <div class="endpoint">
+        <h3>Usuários que curtiram reels</h3>
+        <p>Equivalente à regra Prolog: <code>curtiu_reel(nome)</code></p>
+        <p>URL: <a href="/api/usuarios-que-curtiram-reels/">/api/usuarios-que-curtiram-reels/</a></p>
+    </div>
+    
+    <div class="endpoint">
+        <h3>Usuários que comentaram em postagens</h3>
+        <p>Equivalente à regra Prolog: <code>comentou_em_postagem(nome, texto)</code></p>
+        <p>URL: <a href="/api/usuarios-que-comentaram-em-postagens/">/api/usuarios-que-comentaram-em-postagens/</a></p>
+    </div>
+    
+    <div class="endpoint">
+        <h3>Quem segue quem</h3>
+        <p>Equivalente à regra Prolog: <code>segue(nome1, nome2)</code></p>
+        <p>URL: <a href="/api/quem-segue-quem/">/api/quem-segue-quem/</a></p>
+    </div>
+    
+    <div class="endpoint">
+        <h3>Comentários em reels</h3>
+        <p>Equivalente à regra Prolog: <code>comentarios_em_reels(nome, texto)</code></p>
+        <p>URL: <a href="/api/comentarios-em-reels/">/api/comentarios-em-reels/</a></p>
+        <p>Filtrar por usuário: <code>/api/comentarios-em-reels/{nome_usuario}/</code></p>
+    </div>
+    
+    <div class="endpoint">
+        <h3>Estatísticas de usuário</h3>
+        <p>Retorna estatísticas detalhadas de um usuário específico</p>
+        <p>URL: <code>/api/estatisticas-usuario/{username}/</code></p>
+    </div>
+    
+    <h2>Administração</h2>
+    <p>Acesse o painel de administração em <a href="/admin/">/admin/</a> para gerenciar os dados.</p>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results - Social Network{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Search Results</h2>
+    
+    <form method="get" action="{% url 'social_app:search' %}" class="mb-4">
+        <div class="input-group">
+            {{ form.query }}
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+    
+    {% if results.query %}
+        <h3>Results for "{{ results.query }}"</h3>
+        
+        <ul class="nav nav-tabs mb-4" id="searchTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="true">
+                    Users ({{ results.users|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="posts-tab" data-bs-toggle="tab" data-bs-target="#posts" type="button" role="tab" aria-controls="posts" aria-selected="false">
+                    Posts ({{ results.posts|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reels-tab" data-bs-toggle="tab" data-bs-target="#reels" type="button" role="tab" aria-controls="reels" aria-selected="false">
+                    Reels ({{ results.reels|length }})
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="searchTabsContent">
+            <div class="tab-pane fade show active" id="users" role="tabpanel" aria-labelledby="users-tab">
+                {% if results.users %}
+                    <div class="list-group">
+                        {% for user in results.users %}
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">
+                                            <a href="{% url 'social_app:user_profile' username=user.username %}" class="text-decoration-none">
+                                                {{ user.username }}
+                                            </a>
+                                        </h5>
+                                        {% if user.first_name or user.last_name %}
+                                            <p class="mb-1">{{ user.first_name }} {{ user.last_name }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'social_app:user_profile' username=user.username %}" class="btn btn-sm btn-outline-primary">
+                                        View Profile
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No users found matching "{{ results.query }}".</p>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+                {% if results.posts %}
+                    {% for post in results.posts %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <a href="{% url 'social_app:user_profile' username=post.user.username %}" class="text-decoration-none">
+                                    <strong>{{ post.user.username }}</strong>
+                                </a>
+                                <small class="text-muted ms-2">{{ post.created_at|date:"F d, Y H:i" }}</small>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ post.content }}</p>
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}" class="img-fluid rounded mb-3" alt="Post image" style="max-height: 200px;">
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <a href="{% url 'social_app:post_detail' post_id=post.id %}" class="btn btn-sm btn-outline-primary">
+                                    View Post
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No posts found matching "{{ results.query }}".</p>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="reels" role="tabpanel" aria-labelledby="reels-tab">
+                {% if results.reels %}
+                    <div class="row">
+                        {% for reel in results.reels %}
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <div class="card-header">
+                                        <a href="{% url 'social_app:user_profile' username=reel.user.username %}" class="text-decoration-none">
+                                            <strong>{{ reel.user.username }}</strong>
+                                        </a>
+                                        <small class="text-muted ms-2">{{ reel.created_at|date:"F d, Y H:i" }}</small>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="card-text">{{ reel.description }}</p>
+                                        <div class="ratio ratio-16x9 mb-3">
+                                            <video controls>
+                                                <source src="{{ reel.video.url }}" type="video/mp4">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="{% url 'social_app:reel_detail' reel_id=reel.id %}" class="btn btn-sm btn-outline-primary">
+                                            View Reel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No reels found matching "{{ results.query }}".</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <p>Enter a search term to find users, posts, and reels.</p>
+    {% endif %}
+</div>
+{% endblock %}

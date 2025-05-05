@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Friendship Requests - Social Network{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Friendship Requests</h2>
+    
+    <div class="mb-4">
+        <a href="{% url 'social_app:friends_list' %}" class="btn btn-outline-primary">
+            <i class="bi bi-people"></i> View My Friends
+        </a>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Received Requests</h4>
+                </div>
+                <div class="card-body">
+                    {% if received_requests %}
+                        <div class="list-group">
+                            {% for request in received_requests %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a href="{% url 'social_app:user_profile' username=request.from_user.username %}" class="text-decoration-none">
+                                                <strong>{{ request.from_user.username }}</strong>
+                                            </a>
+                                            <small class="text-muted d-block">{{ request.created_at|date:"F d, Y" }}</small>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'social_app:accept_friendship_request' request_id=request.id %}" class="btn btn-sm btn-success">
+                                                <i class="bi bi-check-lg"></i> Accept
+                                            </a>
+                                            <a href="{% url 'social_app:reject_friendship_request' request_id=request.id %}" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-x-lg"></i> Reject
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No pending friendship requests received.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Sent Requests</h4>
+                </div>
+                <div class="card-body">
+                    {% if sent_requests %}
+                        <div class="list-group">
+                            {% for request in sent_requests %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <a href="{% url 'social_app:user_profile' username=request.to_user.username %}" class="text-decoration-none">
+                                                <strong>{{ request.to_user.username }}</strong>
+                                            </a>
+                                            <small class="text-muted d-block">{{ request.created_at|date:"F d, Y" }}</small>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'social_app:cancel_friendship_request' request_id=request.id %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-x-circle"></i> Cancel
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No pending friendship requests sent.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

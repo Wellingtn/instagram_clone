@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}My Friends - Social Network{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>My Friends</h2>
+    
+    <div class="mb-4">
+        <a href="{% url 'social_app:friendship_requests' %}" class="btn btn-outline-primary">
+            <i class="bi bi-person-plus"></i> View Friendship Requests
+        </a>
+    </div>
+    
+    {% if friendships %}
+        <div class="row">
+            {% for friendship in friendships %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'social_app:user_profile' username=friendship.friend.username %}" class="text-decoration-none">
+                                    {{ friendship.friend.username }}
+                                </a>
+                            </h5>
+                            {% if friendship.friend.profile.bio %}
+                                <p class="card-text">{{ friendship.friend.profile.bio|truncatechars:100 }}</p>
+                            {% endif %}
+                            <p class="text-muted">Friends since {{ friendship.created_at|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'social_app:new_conversation' username=friendship.friend.username %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-chat"></i> Message
+                                </a>
+                                <a href="{% url 'social_app:remove_friend' username=friendship.friend.username %}" class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Are you sure you want to remove {{ friendship.friend.username }} from your friends?')">
+                                    <i class="bi bi-person-x"></i> Remove
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You don't have any friends yet. Start by sending friendship requests to other users!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

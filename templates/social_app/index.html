@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Social Network - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Recent Posts</h2>
+            {% if user.is_authenticated %}
+                <a href="{% url 'social_app:create_post' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> New Post
+                </a>
+            {% endif %}
+        </div>
+        
+        {% if posts %}
+            {% for post in posts %}
+                <div class="card post-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{% url 'social_app:user_profile' username=post.user.username %}" class="text-decoration-none">
+                                <strong>{{ post.user.username }}</strong>
+                            </a>
+                            <small class="text-muted ms-2">{{ post.created_at|date:"F d, Y H:i" }}</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" class="img-fluid mb-3" alt="Post image">
+                        {% endif %}
+                    </div>
+                    <div class="card-footer text-muted">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>Likes: {{ post.likes.count }}</div>
+                            <div>Comments: {{ post.comments.count }}</div>
+                        </div>
+                        <a href="{% url 'social_app:post_detail' post_id=post.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                No posts yet. 
+                {% if user.is_authenticated %}
+                    <a href="{% url 'social_app:create_post' %}">Create the first post!</a>
+                {% else %}
+                    <a href="{% url 'social_app:login' %}">Login</a> to create posts.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Recent Reels</h2>
+            {% if user.is_authenticated %}
+                <a href="{% url 'social_app:create_reel' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> New Reel
+                </a>
+            {% endif %}
+        </div>
+        
+        {% if reels %}
+            {% for reel in reels %}
+                <div class="card reel-card">
+                    <div class="card-header">
+                        <a href="{% url 'social_app:user_profile' username=reel.user.username %}" class="text-decoration-none">
+                            <strong>{{ reel.user.username }}</strong>
+                        </a>
+                        <small class="text-muted ms-2">{{ reel.created_at|date:"F d, Y H:i" }}</small>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ reel.description }}</p>
+                        <div class="ratio ratio-16x9 mb-3">
+                            <video>
+                                <source src="{{ reel.video.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <div class="d-flex justify-content-between mb-2">
+                            <div>Likes: {{ reel.likes.count }}</div>
+                            <div>Comments: {{ reel.comments.count }}</div>
+                        </div>
+                        <a href="{% url 'social_app:reel_detail' reel_id=reel.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                No reels yet. 
+                {% if user.is_authenticated %}
+                    <a href="{% url 'social_app:create_reel' %}">Create the first reel!</a>
+                {% else %}
+                    <a href="{% url 'social_app:login' %}">Login</a> to create reels.
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Add controls to videos when clicked
+    document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            video.addEventListener('click', function() {
+                if (!this.hasAttribute('controls')) {
+                    this.setAttribute('controls', '');
+                    this.play();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
