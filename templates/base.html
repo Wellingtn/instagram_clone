@@ -24,6 +24,39 @@
             padding: 20px 0;
             background-color: #f8f9fa;
         }
+        .video-hover::before {
+            content: "\F4F9"; /* Bootstrap Icons play button */
+            font-family: "bootstrap-icons";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: white;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        /* Instagram-like styling */
+        .nav-link.active {
+            color: #0d6efd !important;
+            font-weight: bold;
+        }
+        
+        .nav-link .nav-icon {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        @media (max-width: 767.98px) {
+            .nav-link .nav-text {
+                display: none;
+            }
+            .nav-link .nav-icon {
+                font-size: 1.8rem;
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -35,58 +68,36 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'social_app:index' %}">Home</a>
-                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'social_app:create_post' %}">Create Post</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'social_app:create_reel' %}">Create Reel</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'social_app:friends_list' %}">
-                                <i class="bi bi-people"></i> Friends
+                            <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'social_app:index' %}">
+                                <i class="bi bi-house-door nav-icon"></i>
+                                <span class="nav-text">Feed</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'social_app:inbox' %}">
-                                <i class="bi bi-chat"></i> Messages
+                            <a class="nav-link {% if request.resolver_match.url_name == 'reels_page' %}active{% endif %}" href="{% url 'social_app:reels_page' %}">
+                                <i class="bi bi-camera-reels nav-icon"></i>
+                                <span class="nav-text">Reels</span>
                             </a>
                         </li>
-                    {% endif %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="queriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            API Endpoints
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="queriesDropdown">
-                            <li><a class="dropdown-item" href="{% url 'core:usuarios_que_curtiram_reels' %}">Users who liked reels</a></li>
-                            <li><a class="dropdown-item" href="{% url 'core:usuarios_que_comentaram_em_postagens' %}">Users who commented on posts</a></li>
-                            <li><a class="dropdown-item" href="{% url 'core:quem_segue_quem' %}">Following relationships</a></li>
-                            <li><a class="dropdown-item" href="{% url 'core:comentarios_em_reels' %}">Comments on reels</a></li>
-                        </ul>
-                    </li>
-                </ul>
-                
-                <form class="d-flex me-2" action="{% url 'social_app:search' %}" method="get">
-                    <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
-                
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ user.username }}
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'create_post' in request.path %}active{% endif %}" href="{% url 'social_app:create_post' %}">
+                                <i class="bi bi-plus-square nav-icon"></i>
+                                <span class="nav-text">Create</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                <li><a class="dropdown-item" href="{% url 'social_app:user_profile' username=user.username %}">My Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'social_app:edit_profile' %}">Edit Profile</a></li>
-                                <li><a class="dropdown-item" href="{% url 'social_app:friendship_requests' %}">Friend Requests</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'social_app:logout' %}">Logout</a></li>
-                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'messages' in request.path %}active{% endif %}" href="{% url 'social_app:inbox' %}">
+                                <i class="bi bi-chat nav-icon"></i>
+                                <span class="nav-text">Messages</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'profile' in request.path and request.user.username in request.path %}active{% endif %}" href="{% url 'social_app:user_profile' username=request.user.username %}">
+                                <i class="bi bi-person nav-icon"></i>
+                                <span class="nav-text">Profile</span>
+                            </a>
                         </li>
                     {% else %}
                         <li class="nav-item">
@@ -97,6 +108,30 @@
                         </li>
                     {% endif %}
                 </ul>
+                
+                <form class="d-flex me-2" action="{% url 'social_app:search' %}" method="get">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-light" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </form>
+                
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'social_app:friends_list' %}">Friends</a></li>
+                            <li><a class="dropdown-item" href="{% url 'social_app:friendship_requests' %}">Friend Requests</a></li>
+                            <li><a class="dropdown-item" href="{% url 'social_app:edit_profile' %}">Edit Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'social_app:logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                {% endif %}
             </div>
         </div>
     </nav>

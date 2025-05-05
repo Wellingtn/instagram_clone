@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Reels - Social Network{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Reels</h2>
+                <a href="{% url 'social_app:create_reel' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i> Create Reel
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% if reels %}
+        <div class="row">
+            {% for reel in reels %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <a href="{% url 'social_app:user_profile' username=reel.user.username %}" class="text-decoration-none">
+                                <strong>{{ reel.user.username }}</strong>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ reel.description|truncatechars:100 }}</p>
+                            <div class="ratio ratio-9x16 mb-3" style="max-height: 500px;">
+                                <video class="reel-video" poster="/static/img/video-poster.jpg">
+                                    <source src="{{ reel.video.url }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div>
+                                    <a href="{% url 'social_app:like_reel' reel_id=reel.id %}" class="btn btn-sm {% if reel.user_has_liked %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                        <i class="bi {% if reel.user_has_liked %}bi-heart-fill{% else %}bi-heart{% endif %}"></i> 
+                                        {{ reel.likes.count }} likes
+                                    </a>
+                                </div>
+                                <div>
+                                    <a href="{% url 'social_app:reel_detail' reel_id=reel.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-chat"></i> {{ reel.comments.count }} comments
+                                    </a>
+                                </div>
+                            </div>
+                            <a href="{% url 'social_app:reel_detail' reel_id=reel.id %}" class="btn btn-sm btn-outline-secondary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <p>No reels available to explore.</p>
+            <p>Be the first to create a reel!</p>
+            <a href="{% url 'social_app:create_reel' %}" class="btn btn-primary">Create Reel</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add click event to play/pause videos
+        const videos = document.querySelectorAll('.reel-video');
+        videos.forEach(video => {
+            video.addEventListener('click', function() {
+                if (this.paused) {
+                    // Pause all other videos first
+                    videos.forEach(v => {
+                        if (v !== this && !v.paused) {
+                            v.pause();
+                        }
+                    });
+                    
+                    // Add controls and play this video
+                    this.controls = true;
+                    this.play();
+                } else {
+                    this.pause();
+                }
+            });
+            
+            // Add hover effect to show play button
+            video.parentElement.addEventListener('mouseenter', function() {
+                if (video.paused) {
+                    this.classList.add('video-hover');
+                }
+            });
+            
+            video.parentElement.addEventListener('mouseleave', function() {
+                this.classList.remove('video-hover');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Feed - Social Network{% endblock %}
+{% block title %}Friends Feed - Social Network{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Feed</h2>
+                <h2>Friends Feed</h2>
                 <a href="{% url 'social_app:create_post' %}" class="btn btn-primary">
                     <i class="bi bi-plus-lg"></i> New Post
                 </a>
@@ -50,7 +50,7 @@
                 {% endfor %}
             {% else %}
                 <div class="alert alert-info">
-                    <p>No posts in your feed yet.</p>
+                    <p>No posts from your friends yet.</p>
                     <p>Try adding more friends or encourage your friends to post content!</p>
                     <a href="{% url 'social_app:search' %}" class="btn btn-primary">Find Friends</a>
                 </div>
